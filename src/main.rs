@@ -1,7 +1,7 @@
 use std::io::{self, Write, Result};
 
-const IMAGE_WIDTH: u32 = 256;
-const IMAGE_HEIGHT: u32 = 256;
+const IMAGE_WIDTH: u16 = 256;
+const IMAGE_HEIGHT: u16 = 256;
 
 fn main() -> Result<()> {
     let stdout = io::stdout();
@@ -11,7 +11,7 @@ fn main() -> Result<()> {
     
     for col in 0..IMAGE_HEIGHT {
         for row in 0..IMAGE_WIDTH {
-            let r = col as f32 / (IMAGE_WIDTH - 1) as f32;
+            let r = row as f32 / (IMAGE_WIDTH - 1) as f32;
             let g = col as f32 / (IMAGE_HEIGHT - 1) as f32;
             let b = 0.0;
 
@@ -20,7 +20,6 @@ fn main() -> Result<()> {
             let ib = (255.999 * b) as i32;
 
             writeln!(handle, "{} {} {}", ir, ig, ib)?;
-
         }
     }
 
