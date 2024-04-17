@@ -8,23 +8,23 @@ pub struct Ray {
     direction: Vec3,
 }
 
-impl Point3 {
+impl Ray {
     pub fn new(origin: &Point3, direction: &Vec3 ) -> Self {
         Self {
-            origin, 
-            direction
+            origin: *origin, 
+            direction: *direction
         }
     }
 
-    pub fn origin(&self) {
+    pub fn origin(&self) -> Point3 {
         self.origin
     }
 
-    pub fn direction(&self) {
+    pub fn direction(&self) -> Vec3 {
         self.direction
     }
 
-    pub fn at(t_val: f64) -> f64 {
+    pub fn at(&self, t_val: f64) -> Point3 {
         self.origin + t_val * self.direction
     }
 }
