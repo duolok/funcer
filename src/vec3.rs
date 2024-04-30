@@ -1,4 +1,4 @@
-use std::ops::{Add, Sub, Mul, MulAssign, Div};
+use std::ops::{Add, AddAssign, Sub, Mul, MulAssign, Div};
 use std::fmt;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -50,6 +50,16 @@ impl Vec3 {
     pub fn normalized(self) -> Vec3 {
         self / self.length()
     }
+
+    pub fn format_color(self, samples_per_pixel: u64) -> String {
+        let ir = (256.0 * (self.e[0] / (samples_per_pixel as f64)).clamp(0.0, 0.999)) as u64;
+        let ig = (256.0 * (self.e[1] / (samples_per_pixel as f64)).clamp(0.0, 0.999)) as u64;
+        let ib = (256.0 * (self.e[2] / (samples_per_pixel as f64)).clamp(0.0, 0.999)) as u64;
+
+        format!("{} {} {}", ir, ig, ib)
+    }
+
+
 }
 
 impl Add for Vec3 {
@@ -61,6 +71,14 @@ impl Add for Vec3 {
             self.e[1] + other.e[1],
             self.e[2] + other.e[2],
         )
+    }
+}
+
+impl AddAssign for Vec3 {
+    fn add_assign(&mut self, other: Vec3) -> () {
+        *self = Vec3 {
+            e: [self.e[0] + other.e[0], self.e[1] + other.e[1], self.e[2] + other.e[2]]
+        };
     }
 }
 
