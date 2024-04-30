@@ -2,19 +2,23 @@ mod vec3;
 mod ray;
 mod hit;
 mod sphere;
+mod camera;
 
 use std::io::{self, Write, Result};
+use rand::prelude::*;
 use vec3::Vec3;
 use ray::{Ray, Point3};
 use hit::{Hit, World};
 use sphere::Sphere;
+use camera::Camera;
 
 
 pub type Color = Vec3;
 
 const ASPECT_RATIO: f64 = 16.0 / 9.0;
 const IMAGE_WIDTH: u64 = 256;
-const IMAGE_HEIGHT: u64 = ((256 as f64) / ASPECT_RATIO) as u64;
+const IMAGE_HEIGHT: u64 = ((IMAGE_WIDTH as f64) / ASPECT_RATIO) as u64;
+const SAMPLES_PER_PIXEL: u64 = 100;
 
 pub fn write_color(color: Vec3) {
     let r = (255.999 * color.x()) as i32;
@@ -56,6 +60,8 @@ fn main() -> Result<()> {
     let mut world = World::new();
     world.push(Box::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)));
     world.push(Box::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0)));
+
+    let cam = Camera::new();
     
     let viewport_height = 2.0;
     let viewport_width = ASPECT_RATIO * viewport_height;
@@ -70,20 +76,26 @@ fn main() -> Result<()> {
 
     writeln!(handle, "P3\n{} {}\n255", IMAGE_WIDTH, IMAGE_HEIGHT)?;
     
+    let mut rng = rand::thread_rng();
     for col in (0..IMAGE_HEIGHT).rev() {
         eprintln!("\rScanlines remaining: {} ", IMAGE_HEIGHT - col);
 
         for row in 0..IMAGE_WIDTH {
-            let u = (row as f64) / ((IMAGE_WIDTH - 1) as f64);
-            let v = (col as f64) / ((IMAGE_HEIGHT - 1) as f64);
-            let ray = Ray::new(&origin, &(lower_left_corner + u * horizontal + v * vertical - origin));
-    
-            let pixel_color = ray_color(&ray, &world);
+            let mut pixel_color = Color::new(0.0, 0.0, 0.0);
+            for _ in 0..SAMPLES_PER_PIXEL {
+                let random_u : f64 = rng.gen();
+                let random_v: f64 = rng.gen();
 
-            write_color(pixel_color);
+                let u = ((row as f64) + random_u) / ((IMAGE_WIDTH - 1) as f64);
+                let v = ((col as f64) + random_v) / ((IMAGE_HEIGHT - 1) as f64);
 
+                let r = cam.get_ray(u, v);
+                pixel_color += ray_color(&r, &world)
+            }
+            println!("{}", pixel_color.format_color(SAMPLES_PER_PIXEL));
         }
     }
+    eprintln!("Done.");
 
     Ok(())
 }
