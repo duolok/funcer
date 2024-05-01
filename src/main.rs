@@ -12,7 +12,6 @@ use hit::{Hit, World};
 use sphere::Sphere;
 use camera::Camera;
 
-
 pub type Color = Vec3;
 
 const ASPECT_RATIO: f64 = 16.0 / 9.0;
@@ -49,8 +48,8 @@ fn ray_color(r: &Ray, world: &World, depth: u64) -> Color {
         return Color::new(0.0, 0.0, 0.0);
     }
 
-    if let Some(rec) = world.hit(r, 0.0, f64::INFINITY) {
-        let target = rec.p + rec.normal + Vec3::random_in_unit_sphere();
+    if let Some(rec) = world.hit(r, 0.001, f64::INFINITY) {
+        let target = rec.p + Vec3::random_in_hemisphere(rec.normal);
         let r = Ray::new(&rec.p, &(target - rec.p));
         0.5 * ray_color(&r, world, depth - 1)
     } else {
@@ -79,8 +78,6 @@ fn main() -> Result<()> {
     let vertical = Vec3::new(0.0, viewport_height, 0.0);
     let lower_left_corner = origin - horizontal / 2.0 - vertical / 2.0 - Vec3::new(0.0, 0.0, focal_length);
 
-
-
     writeln!(handle, "P3\n{} {}\n255", IMAGE_WIDTH, IMAGE_HEIGHT)?;
     
     let mut rng = rand::thread_rng();
@@ -102,6 +99,7 @@ fn main() -> Result<()> {
             println!("{}", pixel_color.format_color(SAMPLES_PER_PIXEL));
         }
     }
+
     eprintln!("Done.");
 
     Ok(())
