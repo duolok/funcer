@@ -3,7 +3,6 @@ use std::fmt;
 use rand::Rng; 
 use rand::thread_rng;
 
-
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vec3 {
     e: [f64; 3],
@@ -92,7 +91,14 @@ impl Vec3 {
         }
     }
 
+    pub fn near_zero(self) -> bool {
+        const EPS: f64 = 1.0e-8;
+        self.e[0].abs() < EPS && self.e[1].abs() < EPS && self.e[2].abs() < EPS
+    }
 
+    pub fn reflect(self, n: Vec3) -> Vec3 {
+        self - 2.0 * self.dot(n) * n
+    }
 }
 
 impl Add for Vec3 {
@@ -157,6 +163,15 @@ impl Mul<Vec3> for f64 {
     }
 }
 
+impl Mul for Vec3 {
+    type Output = Self;
+
+    fn mul(self, other: Self) -> Self::Output {
+        Vec3 {
+            e: [self.e[0] * other.e[0], self.e[1] * other.e[1], self.e[2] * other.e[2]]
+        }
+    }
+}
 
 
 impl Div<f64> for Vec3 {
